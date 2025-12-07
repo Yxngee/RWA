@@ -1,111 +1,47 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Box,
-  Grid,
-  Card,
-  CardContent,
-  CardMedia,
-  Typography,
-  CardActions,
-  Button,
-  Paper,
-  Stack
-} from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { useRouter } from "next/navigation";
 
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: "#fff",
-  padding: theme.spacing(2),
-  textAlign: "center"
-}));
-
-export default function DashboardPage() {
+export default function Dashboard() {
   const [products, setProducts] = useState([]);
   const [weather, setWeather] = useState(null);
-  const router = useRouter();
+  const [cart, setCart] = useState([]);
 
   useEffect(() => {
-    loadProducts();
-    loadWeather();
+    fetch("/api/products")
+      .then((res) => res.json())
+      .then((d) => setProducts(d.products));
+
+    fetch("/api/weather")
+      .then((res) => res.json())
+      .then((d) => setWeather(d));
   }, []);
 
-  async function loadProducts() {
-    const res = await fetch("/api/products");
-    const data = await res.json();
-    setProducts(data.products);
-  }
-
-  async function loadWeather() {
-    const res = await fetch("/api/weather");
-    const data = await res.json();
-    setWeather(data);
-  }
-
-  function addToCart(product) {
-    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-
-    const existing = cart.find((i) => i._id === product._id);
-    if (existing) {
-      existing.quantity += 1;
-    } else {
-      cart.push({ ...product, quantity: 1 });
-    }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    alert("Added to cart!");
+  function addToCart(item) {
+    const saved = [...cart, item];
+    setCart(saved);
+    localStorage.setItem("cart", JSON.stringify(saved));
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      {/* Weather Bar */}
-      <Item>
-        {weather ? (
-          <>
-            <Typography variant="h6">Weather in Dublin</Typography>
-            <Typography>
-              {Math.round(weather.main.temp)}°C – {weather.weather[0].description}
-            </Typography>
-          </>
-        ) : (
-          "Loading weather..."
-        )}
-      </Item>
+    <div style={{ padding: 40 }}>
+      <h1>Customer Dashboard</h1>
 
-      {/* Menu Title */}
-      <Stack direction="row" justifyContent="space-between" sx={{ mt: 2 }}>
-        <Typography variant="h5">Menu</Typography>
-        <Button variant="outlined" onClick={() => router.push("/view_cart")}>
-          View Cart
-        </Button>
-      </Stack>
+      {weather && (
+        <p>
+          <b>Weather:</b> {weather.main.temp}°C — {weather.weather[0].description}
+        </p>
+      )}
 
-      {/* Product Grid */}
-      <Grid container spacing={3} sx={{ mt: 1 }}>
-        {products.map((p) => (
-          <Grid item xs={12} sm={6} md={4} key={p._id}>
-            <Card>
-              <CardMedia component="img" height="160" image={p.imageUrl} />
+      <h2>Menu</h2>
 
-              <CardContent>
-                <Typography variant="h6">{p.title}</Typography>
-                <Typography>{p.description}</Typography>
-                <Typography sx={{ mt: 1, fontWeight: "bold" }}>
-                  €{p.price.toFixed(2)}
-                </Typography>
-              </CardContent>
-
-              <CardActions>
-                <Button variant="contained" onClick={() => addToCart(p)}>
-                  Add to Cart
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-    </Box>
+      {products.map((p) => (
+        <div key={p._id} style={{ marginBottom: 20 }}>
+          <b>{p.title}</b> — €{p.price}
+          <br />
+          <button onClick={() => addToCart(p)}>Add to Cart</button>
+        </div>
+      ))}
+    </div>
   );
 }

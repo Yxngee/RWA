@@ -1,27 +1,10 @@
-"use client";
-
-import { Button, Box, Typography } from "@mui/material";
-import { useRouter } from "next/navigation";
-
-export default function Page() {
-  const router = useRouter();
-
+export default function Home() {
   return (
-    <Box sx={{ p: 5, textAlign: "center" }}>
-      <Typography variant="h4" sx={{ mb: 3 }}>
-        Welcome to McDonald's Online Ordering
-      </Typography>
+    <div style={{ padding: 40 }}>
+      <h1>Welcome to McDonald's Ordering App</h1>
+      <p>Please login or register to continue.</p>
 
-      <Button variant="contained" onClick={() => router.push("/login")}>
-        Login
-      </Button>
-      <Button
-        variant="outlined"
-        sx={{ ml: 2 }}
-        onClick={() => router.push("/register")}
-      >
-        Register
-      </Button>
-    </Box>
+      <a href="/login">Login</a> | <a href="/register">Register</a>
+    </div>
   );
 }

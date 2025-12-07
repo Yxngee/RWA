@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import User from "@/src/models/User";
-import { connectToDatabase } from "@/src/lib/mongodb";
+import { connectToDatabase } from "@/lib/mongodb";
+import User from "@/models/User";
 
 export async function POST(req) {
   try {
     const { email, password } = await req.json();
-
     await connectToDatabase();
 
-    const existing = await User.findOne({ email });
-    if (existing) {
+    const exists = await User.findOne({ email });
+
+    if (exists) {
       return NextResponse.json(
         { error: "User already exists" },
         { status: 400 }
@@ -25,8 +25,9 @@ export async function POST(req) {
       role: "customer"
     });
 
-    return NextResponse.json({ message: "User registered", user });
+    return NextResponse.json({ message: "User registered" });
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error(err);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

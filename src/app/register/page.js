@@ -1,36 +1,37 @@
 "use client";
 
 import { useState } from "react";
-import { Box, TextField, Button, Typography } from "@mui/material";
-import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  async function handleRegister() {
+  async function submit() {
     await fetch("/api/auth/register", {
       method: "POST",
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password }),
     });
 
-    router.push("/login");
+    alert("Registered! Please login.");
+    window.location.href = "/login";
   }
 
   return (
-    <Box sx={{ p: 5 }}>
-      <Typography variant="h5">Register</Typography>
+    <div style={{ padding: 40 }}>
+      <h1>Register</h1>
 
-      <TextField label="Email" fullWidth sx={{ mt: 2 }}
-        onChange={(e) => setEmail(e.target.value)} />
+      <input
+        placeholder="Email"
+        onChange={(e) => setEmail(e.target.value)}
+      /><br /><br />
 
-      <TextField label="Password" type="password" fullWidth sx={{ mt: 2 }}
-        onChange={(e) => setPassword(e.target.value)} />
+      <input
+        type="password"
+        placeholder="Password"
+        onChange={(e) => setPassword(e.target.value)}
+      /><br /><br />
 
-      <Button variant="contained" sx={{ mt: 3 }} onClick={handleRegister}>
-        Register
-      </Button>
-    </Box>
+      <button onClick={submit}>Register</button>
+    </div>
   );
 }

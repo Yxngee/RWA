@@ -1,22 +1,23 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import User from "@/src/models/User";
-import { connectToDatabase } from "@/src/lib/mongodb";
-import { signToken } from "@/src/lib/auth";
+import { connectToDatabase } from "@/lib/mongodb";
+import User from "@/models/User";
+import { signToken } from "@/lib/auth";
 
 export async function POST(req) {
   try {
     const { email, password } = await req.json();
-
     await connectToDatabase();
 
     const user = await User.findOne({ email });
-    if (!user)
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 400 });
+    if (!user) {
+      return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+    }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 400 });
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) {
+      return NextResponse.json({ error: "Invalid password" }, { status: 400 });
+    }
 
     const token = signToken(user);
 
@@ -32,6 +33,8 @@ export async function POST(req) {
 
     return response;
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error(err);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
+
