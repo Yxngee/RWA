@@ -1,32 +1,11 @@
 import mongoose from "mongoose";
 
-const DEFAULT_URI =
-  "mongodb://admin:password123@localhost:27017/mcdonalds?authSource=admin";
+export const connectToDatabase = async () => {
+  if (mongoose.connection.readyState === 1) return;
 
-const MONGODB_URI = process.env.MONGODB_URI || DEFAULT_URI;
+  const uri = process.env.MONGODB_URI;
 
-let cached = global.mongoose;
+  if (!uri) throw new Error("Missing MONGODB_URI");
 
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
-
-export async function connectToDatabase() {
-  if (cached.conn) return cached.conn;
-
-  if (!cached.promise) {
-    cached.promise = mongoose
-      .connect(MONGODB_URI)   // ❗ NO OLD OPTIONS
-      .then((mongooseInstance) => {
-        console.log("✅ Connected to MongoDB");
-        return mongooseInstance;
-      })
-      .catch((err) => {
-        console.error("❌ MongoDB connection error:", err);
-        throw err;
-      });
-  }
-
-  cached.conn = await cached.promise;
-  return cached.conn;
-}
+  await mongoose.connect(uri);
+};

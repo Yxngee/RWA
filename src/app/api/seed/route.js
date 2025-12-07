@@ -1,30 +1,30 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
-import Order from "@/models/Order";
 import Product from "@/models/Product";
+import products from "@/data/products";
 
 export async function GET() {
   try {
     await connectToDatabase();
 
-    const orderCount = await Order.countDocuments();
-    const productCount = await Product.countDocuments();
+    // Remove old and seed new products
+    await Product.deleteMany();
+    await Product.insertMany(products);
 
     return NextResponse.json(
       {
         success: true,
-        orders: orderCount,
-        products: productCount,
+        message: "Database seeded successfully",
       },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Manager Stats Error:", error);
+  } catch (err) {
+    console.error("SEED ERROR:", err);
 
     return NextResponse.json(
       {
         success: false,
-        message: "Failed to fetch manager stats.",
+        error: err.message,
       },
       { status: 500 }
     );

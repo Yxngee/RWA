@@ -4,42 +4,68 @@ import { useEffect, useState } from "react";
 
 export default function Dashboard() {
   const [products, setProducts] = useState([]);
-  const [weather, setWeather] = useState(null);
-  const [cart, setCart] = useState([]);
 
   useEffect(() => {
     fetch("/api/products")
       .then((res) => res.json())
       .then((d) => setProducts(d.products));
-
-    fetch("/api/weather")
-      .then((res) => res.json())
-      .then((d) => setWeather(d));
   }, []);
 
-  function addToCart(item) {
-    const saved = [...cart, item];
-    setCart(saved);
-    localStorage.setItem("cart", JSON.stringify(saved));
-  }
-
   return (
-    <div style={{ padding: 40 }}>
-      <h1>Customer Dashboard</h1>
+    <div style={{ padding: "40px", maxWidth: "900px", margin: "0 auto" }}>
+      <div style={{ textAlign: "center" }}>
+        <img
+          src="/images/mcd_logo.png"
+          alt="McDonald's Logo"
+          style={{ width: "150px", marginBottom: "20px" }}
+        />
+        <h1 style={{ color: "#D32F2F" }}>Welcome to McDonald's</h1>
+      </div>
 
-      {weather && (
-        <p>
-          <b>Weather:</b> {weather.main.temp}°C — {weather.weather[0].description}
-        </p>
-      )}
-
-      <h2>Menu</h2>
+      <h2 style={{ marginTop: 30 }}>🍔 Menu</h2>
 
       {products.map((p) => (
-        <div key={p._id} style={{ marginBottom: 20 }}>
-          <b>{p.title}</b> — €{p.price}
-          <br />
-          <button onClick={() => addToCart(p)}>Add to Cart</button>
+        <div
+          key={p._id}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            marginBottom: "20px",
+            padding: "20px",
+            borderRadius: "10px",
+            border: "1px solid #ddd",
+            background: "white",
+          }}
+        >
+          <img
+            src={p.image}
+            alt={p.title}
+            style={{
+              width: "120px",
+              height: "120px",
+              objectFit: "cover",
+              borderRadius: "10px",
+              marginRight: "20px",
+            }}
+          />
+
+          <div style={{ flexGrow: 1 }}>
+            <h3>{p.title}</h3>
+            <p style={{ fontSize: "18px", fontWeight: "bold" }}>€{p.price}</p>
+          </div>
+
+          <button
+            style={{
+              padding: "10px 20px",
+              background: "#D32F2F",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+            }}
+          >
+            Add to Cart
+          </button>
         </div>
       ))}
     </div>
